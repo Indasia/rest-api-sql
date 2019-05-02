@@ -1,1 +1,1 @@
-# rest-api-sql
+# REST API using SQLite and Sequelize
