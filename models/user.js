@@ -5,13 +5,13 @@ module.exports = (sequelize, DataTypes) => {
     {
       firstName: DataTypes.STRING,
       lastName: DataTypes.STRING,
-      emailemailAddress: DataTypes.STRING,
+      emailAddress: DataTypes.STRING,
       password: DataTypes.STRING
     },
     {}
   );
   User.associate = models => {
-    User.hasMany(models.Course);
+    User.hasMany(models.Course)
   };
   return User;
 };
