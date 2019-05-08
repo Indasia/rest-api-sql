@@ -37,31 +37,29 @@ router.post("/", (req, res) => {
   const { body } = req;
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(body.password, salt, function(err, hash) {
-      User.findAll({
+      User.findOrCreate({
         where: {
           emailAddress: body.emailAddress
+        },
+        defaults: {
+          firstName: body.firstName,
+          lastName: body.lastName,
+          password: hash
         }
-      }).then(search => {
-        if (search.length == 0) {
-          User.create({
-            firstName: body.firstName,
-            lastName: body.lastName,
-            emailAddress: body.emailAddress,
-            password: hash
-          })
-            .then((user) => {
-              res.location(`/user/${user.id}`)
-              res.end();
-            })
-            .catch(err => {
-              if (err.name === "SequelizeValidationError") {
-                res.status(400).json(err.errors);
-              }
-            });
-        } else {
-          res.status(405).json({ message: "Email already in database" });
-        }
-      });
+      })
+        .then(([user, created]) => {
+          console.log(created);
+          if (!created) {
+            res.status(402).end();
+          }
+          res.location(`/user/${user.id}`);
+          res.end();
+        })
+        .catch(err => {
+          if (err.name === "SequelizeValidationError") {
+            res.status(400).json(err.errors);
+          }
+        });
     });
   });
 });
