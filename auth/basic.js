@@ -5,12 +5,12 @@ const bcrypt = require("bcryptjs");
 module.exports = new BasicStrategy((userid, password, done) => {
   User.findOne({ where: { emailAddress: userid } })
     .then(user => {
+      if (!user) {
+        return done(null, false);
+      }
       bcrypt
         .compare(password, user.password)
         .then(passRes => {
-          if (!user) {
-            return done(null, false);
-          }
           if (!passRes) {
             return done(null, false);
           }

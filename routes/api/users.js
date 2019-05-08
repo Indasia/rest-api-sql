@@ -21,30 +21,39 @@ router.get(
   "/",
   passport.authenticate("basic", { session: false }),
   (req, res) => {
-    res.json(req.user);
+    User.findAll({
+      attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+      where: { id: req.user.id }
+    }).then(user => res.json(user));
   }
 );
 
 /**
  * @route   POST api/users
- * @desc    Returns the currently authenticated user
+ * @desc    Creates a new user
  * @access  Private
  */
 router.post("/", (req, res) => {
   const { body } = req;
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(body.password, salt, function(err, hash) {
-      User.create({
-        firstName: body.firstName,
-        lastName: body.lastName,
-        emailAddress: body.emailAddress,
-        password: hash
+      User.findOrCreate({
+        where: {
+          emailAddress: body.emailAddress
+        }
       })
-        .then(() => {
+        .then(([user, created]) => {
+          if (!created) {
+            res.status(400).json({ message: "User already in database" });
+          }
           res.location("/");
           res.end();
         })
-        .catch(err => res.status(500));
+        .catch(err => {
+          if (err.name === "SequelizeValidationError") {
+            res.status(400).json(err.errors);
+          }
+        });
     });
   });
 });

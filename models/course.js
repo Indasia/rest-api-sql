@@ -8,16 +8,40 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true
       },
-      userId: { type: DataTypes.INTEGER },
-      title: { type: DataTypes.STRING },
-      description: { type: DataTypes.TEXT },
-      estimatedTime: { type: DataTypes.STRING },
-      materialsNeeded: { type: DataTypes.STRING }
+      userId: {
+        type: DataTypes.INTEGER
+      },
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "A course title is required"
+          }
+        }
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "A course description is required"
+          }
+        }
+      },
+      estimatedTime: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      materialsNeeded: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
     },
     {}
   );
   Course.associate = models => {
-    Course.belongsTo(models.User)
+    Course.belongsTo(models.User);
   };
   return Course;
 };

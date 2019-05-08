@@ -4,11 +4,15 @@ const morgan = require("morgan");
 const sequelize = require("./models").sequelize;
 const PORT = 5000; // Change broadcast port here.
 
-// variable to enable global error logging
+/**
+ * Variable to enable global error logging
+ */
 const enableGlobalErrorLogging =
   process.env.ENABLE_GLOBAL_ERROR_LOGGING === "true";
 
-// setup morgan which gives us http request logging
+/**
+ * Setup morgan which gives us http request logging
+ */
 app.use(morgan("dev"));
 
 /**
@@ -17,9 +21,11 @@ app.use(morgan("dev"));
 app.use("/api/users", require("./routes/api/users"));
 app.use("/api/courses", require("./routes/api/courses"));
 
-// @route   GET /
-// @desc    Returns a message at root
-// @access  Public
+/**
+ * @route   GET /
+ * @desc    Returns a message at root
+ * @access  Public
+ */
 app.get("/", (req, res) => {
   res.json({
     message: "Rest API project using Express and Sequelize"
@@ -45,11 +51,14 @@ app.use((err, req, res, next) => {
 
   res.status(err.status || 500).json({
     message: err.message,
+    status: err.status,
     error: {}
   });
 });
 
-// start listening on our port
+/**
+ * Start listening on our port
+ */
 sequelize
   .authenticate()
   .then(() => {
