@@ -53,10 +53,10 @@ router.post(
         body.userId = user.id;
         return user.createCourse(body);
       })
-      .then(() => {
+      .then(course => {
         res
           .status(201)
-          .location("/")
+          .location(`/course/${course.id}`)
           .end();
       })
       .catch(err => {
