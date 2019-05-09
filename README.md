@@ -1,4 +1,5 @@
-# REST API using SQLite and Sequelize
+# Rest API using Sequelize and Express
+
 ## Usage example
 
 ```sh
