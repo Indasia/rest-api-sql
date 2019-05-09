@@ -62,6 +62,6 @@ app.use((err, req, res, next) => {
 sequelize
   .authenticate()
   .then(() => {
-    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+    app.listen(PORT, () => console.log(`Connected to database, listening on port ${PORT}`));
   })
   .catch(err => console.error(`Could not connect to database, error: ${err}`));

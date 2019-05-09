@@ -24,7 +24,9 @@ router.get(
     User.findAll({
       attributes: { exclude: ["password", "createdAt", "updatedAt"] },
       where: { id: req.user.id }
-    }).then(user => res.json(user));
+    })
+      .then(user => res.json(user))
+      .catch(err => next(err));
   }
 );
 
@@ -33,31 +35,44 @@ router.get(
  * @desc    Creates a new user
  * @access  Public
  */
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
   const { body } = req;
+  if (!body.emailAddress) {
+    const err = new Error();
+    err.status = "400";
+    err.message = "Incomplete data submitted";
+    next(err);
+  }
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(body.password, salt, function(err, hash) {
-      User.findOrCreate({
+      User.findOne({
         where: {
           emailAddress: body.emailAddress
-        },
-        defaults: {
-          firstName: body.firstName,
-          lastName: body.lastName,
-          password: hash
         }
       })
-        .then(([user, created]) => {
-          console.log(created);
-          if (!created) {
-            res.status(402).end();
+        .then(user => {
+          if (user) {
+            const err = new Error();
+            err.status = "400";
+            err.message = "Email already in database";
+            next(err);
+          } else {
+            User.create({
+              emailAddress: body.emailAddress,
+              firstName: body.firstName,
+              lastName: body.lastName,
+              password: hash
+            });
+            res.location(`/user/${user.id}`);
+            res.status(201).end();
           }
-          res.location(`/user/${user.id}`);
-          res.end();
         })
         .catch(err => {
           if (err.name === "SequelizeValidationError") {
-            res.status(400).json(err.errors);
+            err.status = 400;
+            err.message = "Incomplete data submitted";
+          } else {
+            next(err);
           }
         });
     });

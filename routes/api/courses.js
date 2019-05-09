@@ -16,7 +16,9 @@ router.use(express.json());
  * @access  Public
  */
 router.get("/", (req, res) => {
-  Course.findAll()
+  Course.findAll({
+    attributes: { exclude: ["createdAt", "updatedAt"] }
+  })
     .then(data => res.json(data))
     .catch(err => res.status(500).json(err));
 });
@@ -96,7 +98,7 @@ router.put(
         }
       })
       .catch(err => {
-        throw err;
+        next(err);
       });
   }
 );
@@ -114,14 +116,16 @@ router.delete(
     const { id } = req.params;
     const { user } = req;
 
-    Course.findOne({ where: { id } }).then(course => {
-      if (course.userId === user.id) {
-        course.destroy();
-        res.status(204).end();
-      } else {
-        res.status(403).json({ message: "Forbidden" });
-      }
-    });
+    Course.findOne({ where: { id } })
+      .then(course => {
+        if (course.userId === user.id) {
+          course.destroy();
+          res.status(204).end();
+        } else {
+          res.status(403).json({ message: "Forbidden" });
+        }
+      })
+      .catch(err => next(err));
   }
 );
 
